@@ -1,0 +1,101 @@
+---
+title: "Untitled"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+title: "Mamíferos de la Gran Área Metropolitana (GAM) de Costa Rica"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+
+library(flexdashboard)
+library(sf)
+library(leaflet)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+
+# Registros de presencia de Mammalia
+registros_presencia_mammalia = st_read("https://raw.githubusercontent.com/atlas-servicios-ecosistemicos-gam/datos/master/biodiversidad/presencia/mammalia.geojson")
+
+```
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Mapa de distribución
+
+```{r}
+leaflet() %>% 
+  addProviderTiles(providers$Esri.WorldImagery, group = "Imágenes de ESRI") %>% 
+  addProviderTiles(providers$Stamen.TonerLite, group = "Stamen Toner Lite") %>%
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
+  addCircleMarkers(data = registros_presencia_mammalia,
+                   stroke = F,
+                   radius = 4,
+                   fillColor = 'red',
+                   fillOpacity = 1,
+                   popup = paste(registros_presencia_mammalia$order, registros_presencia_mammalia$species, sep = '<br/>')) %>%
+  addLayersControl(baseGroups = c("OpenStreetMap", "Stamen Toner Lite", "Imágenes de ESRI")) %>%
+  addMiniMap(
+    toggleDisplay = TRUE,
+    tiles = providers$Stamen.TonerLite
+  )
+```
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### especies de _Mammalia_ (mamíferos)
+```{r}
+valueBox(length(unique(registros_presencia_mammalia[["species"]])), icon = "fa-pencil")
+```
+
+### Registros de presencia de especies
+```{r}
+registros_presencia_mammalia %>%
+  select(species, order) %>%
+  arrange(species) %>%
+  st_drop_geometry() %>%
+  kable()%>%
+  kable_styling() %>%
+  scroll_box(
+    width = "600px", 
+    height = "400px", 
+    fixed_thead = TRUE
+  )
+
+
+
+```
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
